@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stall Owner Section</title>
+    <link rel="stylesheet" href="final.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Stall Owner Section</h1>
+            <p>Manage customer orders and stall status with ease.</p>
+        </header>
+
+        <section id="stall-status" class="section">
+            <h2>Manage Stall Status</h2>
+            <div class="status-box">
+                <p>Current Status: <span id="current-status">Closed</span></p>
+                <button id="toggle-status" class="btn">Toggle Open/Close</button>
+            </div>
+        </section>
+
+        <section id="stall-queue" class="section">
+            <h2>Manage Queue</h2>
+            <div class="queue-box">
+                <button id="next-order" class="btn">Next Order</button>
+                <button id="order-ready" class="btn">Ready for Pickup</button>
+                <button id="reset-queue" class="btn reset-btn">Reset Queue</button>
+                <div class="queue-display">
+                    <p>Current Order:</p>
+                    <span id="current-order" class="highlight-large">0</span>
+                </div>
+                <div class="queue-display">
+                    <p>Ready for Pickup:</p>
+                    <span id="ready-order" class="highlight-large">0</span>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <a href="project.html" class="btn">Back to Main Menu</a>
+        </footer>
+
+        <footer>
+            <p>&copy; 2025 Al Fateh Ayam Gunting. All rights reserved.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            // Initialize stall status
+            let stallStatus = localStorage.getItem("stallStatus") || "Closed";
+            $("#current-status").text(stallStatus);
+
+            // Toggle stall status
+            $("#toggle-status").on("click", function () {
+                stallStatus = stallStatus === "Open" ? "Closed" : "Open";
+                localStorage.setItem("stallStatus", stallStatus);
+                $("#current-status").text(stallStatus);
+
+                $("<div>Stall status changed to <strong>" + stallStatus + "</strong></div>").dialog({
+                    modal: true,
+                    title: "Stall Status Updated",
+                    buttons: {
+                        OK: function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+            });
+
+            // Initialize queue management
+            let currentOrder = Number(localStorage.getItem("currentOrder")) || 0;
+            let readyOrder = Number(localStorage.getItem("readyOrder")) || 0;
+
+            // Update the UI with current queue data
+            $("#current-order").text(currentOrder);
+            $("#ready-order").text(readyOrder);
+
+            // Next Order button
+            $("#next-order").on("click", function () {
+                currentOrder++;
+                localStorage.setItem("currentOrder", currentOrder);
+                $("#current-order").text(currentOrder);
+
+                $("<div>Order #" + currentOrder + " has been added to the queue.</div>").dialog({
+                    modal: true,
+                    title: "New Order",
+                    buttons: {
+                        OK: function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+            });
+
+            // Order Ready button
+            $("#order-ready").on("click", function () {
+                if (readyOrder < currentOrder) {
+                    readyOrder++;
+                    localStorage.setItem("readyOrder", readyOrder);
+                    $("#ready-order").text(readyOrder);
+
+                    $("<div>Order #" + readyOrder + " is ready for pickup.</div>").dialog({
+                        modal: true,
+                        title: "Order Ready",
+                        buttons: {
+                            OK: function () {
+                                $(this).dialog("close");
+                            }
+                        }
+                    });
+                } else {
+                    $("<div>No pending orders to mark as ready!</div>").dialog({
+                        modal: true,
+                        title: "No Orders",
+                        buttons: {
+                            OK: function () {
+                                $(this).dialog("close");
+                            }
+                        }
+                    });
+                }
+            });
+
+            // Reset Queue button
+            $("#reset-queue").on("click", function () {
+        $("<div>Are you sure you want to reset the queue? This will clear all current and ready orders.</div>").dialog({
+            modal: true,
+            title: "Confirm Reset",
+            buttons: {
+                Yes: function () {
+                    // Reset customerQueueCounter to 1 to restart numbering for next customer
+                    localStorage.setItem("customerQueueCounter", 1);
+                    currentOrder = 0;
+                    readyOrder = 0;
+                    localStorage.setItem("currentOrder", currentOrder);
+                    localStorage.setItem("readyOrder", readyOrder);
+                    $("#current-order").text(currentOrder);
+                    $("#ready-order").text(readyOrder);
+                    $(this).dialog("close");
+                    alert("Queue has been reset for the next day.");
+                },
+                No: function () {
+                    $(this).dialog("close");
+                }
+            }
+        });
+    });
+});
+    </script>
+</body>
+</html>
